@@ -1,12 +1,12 @@
 # Forum Badge
 
-macOS menu bar app that checks [FLOW](https://flow.snosites.com) every 5 minutes for assignments in your groups. The **badge is always visible**: it shows **TF** when there are no assignments from the primary group, or the **number** of assignments from the primary group. The menu is split into sections (one per group); clicking any assignment opens the FLOW "Submitted to My Groups" page.
+This automation checks [FLOW](https://flow.snosites.com) every 5 minutes for your group's latest assignments. It displays the number in your menu bar, offering easy access to your effective Forum to-do list. Clicking the "TF" icon shows you the names of the stories.
 
 ## Setup
 
 You need two things:
 
-* The `Cookie` header your account sends to `flow.snosites.com`. You can get this from the Network tab of Chrome DevTools under any request to the FLOW API.
+* The `Cookie` header your authenticated browser sends to `flow.snosites.com`. You can get this from the Network tab of Chrome DevTools under any request to the FLOW API.
 * The list of group names you want to check for, all of which you must be a member of.
 
 Save this to `~/.config/forum-badge.env` like:
