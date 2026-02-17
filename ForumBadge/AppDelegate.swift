@@ -27,6 +27,8 @@ private let checkInterval: TimeInterval = 5 * 60  // 5 minutes
 struct FlowAssignment: Sendable {
     let id: String
     let title: String
+    /// Google Doc URL if available from the API.
+    let googleDocURL: String?
 }
 
 /// Group id (API key) and display name for the menu section.
@@ -211,8 +213,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     Log.write("Group \(groupId) item \(idx) has no assignment_id/id. Keys: \(itemKeys)")
                     continue
                 }
-                let title = fetchAssignmentTitle(assignmentId: aid, cookie: cookie, xsrf: xsrf)
-                assignments.append(FlowAssignment(id: aid, title: title ?? "Assignment"))
+                let (title, googleDocId) = fetchAssignmentDetails(assignmentId: aid, cookie: cookie, xsrf: xsrf)
+                let docURL = googleDocId.map { "https://docs.google.com/document/d/\($0)/edit" }
+                assignments.append(FlowAssignment(id: aid, title: title ?? "Assignment", googleDocURL: docURL))
             }
             Log.write("Group \(groupId) (\(displayName)): \(rawList.count) raw, \(assignments.count) assignments")
             if groupId == primaryGroupId {
@@ -232,13 +235,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         request.setValue("XMLHttpRequest", forHTTPHeaderField: "x-requested-with")
     }
 
-    private func fetchAssignmentTitle(assignmentId: String, cookie: String, xsrf: String) -> String? {
+    /// Returns (title, googleDocId). google_doc_id from API may be string or number.
+    private func fetchAssignmentDetails(assignmentId: String, cookie: String, xsrf: String) -> (String?, String?) {
         var request = URLRequest(url: URL(string: flowAssignmentAPI + assignmentId)!)
         setFlowHeaders(request: &request, cookie: cookie, xsrf: xsrf)
         guard let data = try? URLSession.shared.synchronousData(with: request),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let title = json["title"] as? String else { return nil }
-        return title
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return (nil, nil) }
+        let title = json["title"] as? String
+        let docId: String? = (json["google_doc_id"] as? String)
+            ?? (json["google_doc_id"] as? Int).map { String($0) }
+        return (title, docId)
     }
 
     private func updateMenuBarFromSections() {
@@ -253,16 +259,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(header)
             for a in section.assignments {
                 let title = a.title.count > 60 ? String(a.title.prefix(57)) + "…" : a.title
-                let item = NSMenuItem(title: title, action: #selector(openFlow), keyEquivalent: "")
+                let item = NSMenuItem(title: title, action: #selector(openMenuItemURL(_:)), keyEquivalent: "")
                 item.target = self
+                item.representedObject = a.googleDocURL ?? flowURL
                 menu.addItem(item)
             }
         }
         menu.addItem(NSMenuItem.separator())
+        let openFlowItem = NSMenuItem(title: "Open FLOW", action: #selector(openFlow), keyEquivalent: "")
+        openFlowItem.target = self
+        menu.addItem(openFlowItem)
         let refreshItem = NSMenuItem(title: "Refresh", action: #selector(refresh), keyEquivalent: "")
         refreshItem.target = self
         menu.addItem(refreshItem)
         statusItem?.menu = menu
+    }
+
+    @objc private func openMenuItemURL(_ sender: NSMenuItem) {
+        guard let urlString = sender.representedObject as? String, let url = URL(string: urlString) else { return }
+        NSWorkspace.shared.open(url)
     }
 
     @objc private func openFlow() {
