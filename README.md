@@ -24,8 +24,6 @@ Double-click **run.command** (or in Terminal: `./run.command`). It builds the ap
 
 To stop: double-click **stop.command** (or `./stop.command`).
 
-Manual config: create `~/.config/forum-badge.env` with `FLOW_COOKIE=...` and `GROUP_NAMES=Name One,Name Two,...` (first name = primary group).
-
 Build output is under `build/`. The app runs in the background (menu bar only; no dock icon). It will not be configured to relaunch at login by default; you will need to configure this manually.
 
 ## Logging
