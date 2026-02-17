@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>ForumBadge</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.example.ForumBadge</string>
+	<string>com.teddyml.ForumBadge</string>
 	<key>CFBundleName</key>
 	<string>Forum Badge</string>
 	<key>CFBundlePackageType</key>
