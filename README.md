@@ -7,14 +7,11 @@ been submitted to your FLOW groups.
 
 ## Download
 
-<p align="center">
-  <a href="https://github.com/ts7n/forum-badge/releases/latest">
-    <img alt="Download for macOS" src="https://img.shields.io/badge/Download%20for%20macOS-blue?style=for-the-badge&logo=apple&logoColor=white" />
-  </a>
-</p>
+<a href="https://github.com/ts7n/forum-badge/releases/latest">
+  <img alt="Download for macOS" src="https://img.shields.io/badge/Download%20for%20macOS-blue?style=for-the-badge&logo=apple&logoColor=white" />
+</a>
 
-Drag **ForumBadge.app** into `/Applications`, open it, and enter the password
-your editor gave you. That's it.
+Open **ForumBadge.app** and enter the password your editor gave you.
 
 ## Features
 
