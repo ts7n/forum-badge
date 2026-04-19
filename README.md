@@ -7,7 +7,7 @@ been submitted to your FLOW groups.
 
 ## Download
 
-<a href="https://github.com/ts7n/forum-badge/releases/latest">
+<a href="https://github.com/ts7n/forum-badge/releases/latest/download/ForumBadge.zip">
   <img alt="Download for macOS" src="https://img.shields.io/badge/Download%20for%20macOS-blue?style=for-the-badge&logo=apple&logoColor=white" />
 </a>
 
