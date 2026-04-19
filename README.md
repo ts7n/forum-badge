@@ -1,31 +1,43 @@
 # Forum Badge
 
-This automation checks [FLOW](https://flow.snosites.com) every 5 minutes for your group's latest assignments. It displays the number in your menu bar, offering easy access to your effective Forum to-do list. Clicking the "TF" icon shows you the names of the stories.
+A tiny Mac menu-bar app that shows you, at a glance, how many stories have
+been submitted to your FLOW groups.
 
-## Setup
+![Forum Badge screenshot](docs/screenshot.png)
 
-You need two things:
+## Download
 
-* The `Cookie` header your authenticated browser sends to `flow.snosites.com`. You can get this from the Network tab of Chrome DevTools under any request to the FLOW API.
-* The list of group names you want to check for, all of which you must be a member of.
+<p align="center">
+  <a href="https://github.com/ts7n/forum-badge/releases/latest">
+    <img alt="Download for macOS" src="https://img.shields.io/badge/Download%20for%20macOS-blue?style=for-the-badge&logo=apple&logoColor=white" />
+  </a>
+</p>
 
-Save this to `~/.config/forum-badge.env` like:
+Drag **ForumBadge.app** into `/Applications`, open it, and enter the password
+your editor gave you. That's it.
 
-```
-FLOW_COOKIE="..."
-GROUP_NAMES="Web Group, EIC Group"
-```
+## Features
 
-The first group listed will be considered the primary group, which affects determines the badge count.
+- **Live submission counts in your menu bar.** One number per group — no
+  dashboards, no tabs to keep open.
+- **Click through to the story.** Left-click the badge for a dropdown of story
+  titles; click a title to jump straight to the Google Doc.
+- **Pick what you care about.** For each group, choose *Off*, *Count only*, or
+  *Menu + count*. Turn off the groups that aren't yours.
+- **Silent after setup.** The icon lives in the menu bar, re-launches when
+  you log in, and stays out of your Dock.
+- **One password, set once.** Preferences hide behind a password your editor
+  configures. Nothing to remember day-to-day.
+- **Refreshes on its own.** Counts update in the background. Hit *Refresh* in
+  the menu if you don't want to wait.
 
-## Build and Run
+## How it works
 
-Double-click **run.command** (or in Terminal: `./run.command`). It builds the app and launches it.
+Forum Badge talks to a small self-hosted server that your editor runs. The
+server holds the FLOW session, and your Mac app reads counts from it. You
+never see any of that — just the badge.
 
-To stop: double-click **stop.command** (or `./stop.command`).
+## For editors / developers
 
-Build output is under `build/`. The app runs in the background (menu bar only; no dock icon). It will not be configured to relaunch at login by default; you will need to configure this manually.
-
-## Logging
-
-The app writes errors and warnings to `~/Library/Logs/ForumBadge.log`. Config problems (missing env file, missing `FLOW_COOKIE` / `GROUP_NAMES`) and API failures (request errors, invalid JSON) will be explained here.
+- Run your own server: [`server/README.md`](server/README.md)
+- Build the Mac app from source: [`client/README.md`](client/README.md)

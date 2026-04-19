@@ -10,10 +10,18 @@
 	<string>com.teddyml.ForumBadge</string>
 	<key>CFBundleName</key>
 	<string>Forum Badge</string>
+	<key>CFBundleDisplayName</key>
+	<string>Forum Badge</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>2.0</string>
+	<key>CFBundleVersion</key>
+	<string>__CF_BUNDLE_VERSION__</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© Teddy Lampert</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
