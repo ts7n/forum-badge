@@ -24,7 +24,7 @@ enum Log {
 }
 
 private let flowURL = "https://flow.snosites.com/assignments/home#submitted-to-my-groups"
-private let pollInterval: TimeInterval = 30
+private let pollInterval: TimeInterval = 120
 
 enum FetchState {
     case idle
@@ -67,7 +67,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if config.enabled && canPoll() {
             startPolling()
-            Task { await fetchNow() }
+            Task { await fetchNow(includeGroups: true) }
         }
     }
 
@@ -194,15 +194,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         openFlowItem.target = self
         menu.addItem(openFlowItem)
 
-        let refresh = NSMenuItem(title: "Refresh", action: #selector(refreshNow), keyEquivalent: "")
-        refresh.target = self
-        menu.addItem(refresh)
-
         return menu
     }
 
     private func buildRightClickMenu() -> NSMenu {
         let menu = NSMenu()
+        let refresh = NSMenuItem(title: "Refresh", action: #selector(refreshNow), keyEquivalent: "")
+        refresh.target = self
+        menu.addItem(refresh)
         let prefs = NSMenuItem(title: "Preferences…", action: #selector(openPreferencesMenuItem), keyEquivalent: "")
         prefs.target = self
         menu.addItem(prefs)
@@ -230,7 +229,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func startPolling() {
         stopPolling()
         let t = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
-            Task { await self?.fetchNow() }
+            Task { await self?.fetchNow(includeGroups: false) }
         }
         RunLoop.main.add(t, forMode: .common)
         pollTimer = t
@@ -242,18 +241,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @MainActor
-    private func fetchNow() async {
+    private func fetchNow(includeGroups: Bool) async {
         guard config.enabled, canPoll() else { return }
         let client = FlowClient(baseURL: config.serverURL, password: password)
         let countedIds = config.groups.filter { $0.mode == .menu || $0.mode == .menuOnly }.map { $0.id }
         do {
-            async let groupsTask = client.groups()
-            async let storiesTask = client.stories(forGroupIds: countedIds)
-            let (groups, stories) = try await (groupsTask, storiesTask)
-            self.latestGroups = groups
-            var byId: [Int: [ServerStory]] = [:]
-            for entry in stories { byId[entry.groupId] = entry.stories }
-            self.latestStories = byId
+            if includeGroups {
+                async let groupsTask = client.groups()
+                async let storiesTask = client.stories(forGroupIds: countedIds)
+                let (groups, stories) = try await (groupsTask, storiesTask)
+                self.latestGroups = groups
+                var byId: [Int: [ServerStory]] = [:]
+                for entry in stories { byId[entry.groupId] = entry.stories }
+                self.latestStories = byId
+            } else {
+                let stories = try await client.stories(forGroupIds: countedIds)
+                var byId: [Int: [ServerStory]] = [:]
+                for entry in stories { byId[entry.groupId] = entry.stories }
+                self.latestStories = byId
+            }
             self.fetchState = .ok(fetchedAt: Date())
         } catch FlowClientError.unauthorized {
             self.fetchState = .unauthorized
@@ -310,7 +316,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         updateBadgeLabel()
         if config.enabled && canPoll() {
             startPolling()
-            Task { await fetchNow() }
+            Task { await fetchNow(includeGroups: true) }
         } else {
             stopPolling()
         }
@@ -350,7 +356,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func refreshNow() {
-        Task { await fetchNow() }
+        Task { await fetchNow(includeGroups: true) }
     }
 
     @objc private func openPreferencesMenuItem() {
